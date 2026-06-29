@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>retro-mundialista</title>
+  <style>
+    :root {
+      --ink: #f8fbff;
+      --muted: #c8bfa8;
+      --panel: rgba(13, 31, 35, .78);
+      --panel-strong: rgba(10, 40, 35, .93);
+      --line: rgba(241, 196, 83, .24);
+      --sky: #f1c453;
+      --cyan: #1fbf75;
+      --gold: #f1c453;
+      --grass: #20bf6b;
+      --red: #d83a35;
+      --orange: #f08a24;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .38);
+      --radius: 8px;
+      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(8, 18, 28, .34), rgba(7, 24, 22, .9) 62%, #071611),
+        url("mundial-stadium-bg.png") center top / cover fixed;
+      letter-spacing: .02em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(135deg, rgba(241, 196, 83, .08) 0 1px, transparent 1px 32px),
+        radial-gradient(circle at 50% 16%, rgba(216, 58, 53, .16), transparent 34%),
+        radial-gradient(circle at 82% 22%, rgba(31, 191, 117, .16), transparent 30%);
+      mix-blend-mode: screen;
+    }
+
+    button, input, textarea {
+      font: inherit;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(210px, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 18px;
+      background: rgba(7, 25, 24, .94);
+      border-bottom: 2px solid rgba(241, 196, 83, .72);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+      text-transform: uppercase;
+    }
+
+    .ball {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff7d8, #f1c453 42%, #b3212c 43%);
+      box-shadow: 0 0 22px rgba(241, 196, 83, .5);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.05rem, 2vw, 1.65rem);
+      letter-spacing: .09em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand span { color: var(--sky); }
+
+    .scoreboard {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .06);
+      text-transform: uppercase;
+      color: var(--muted);
+      min-height: 38px;
+    }
+
+    .clock {
+      min-width: 92px;
+      text-align: center;
+      font-size: 1.7rem;
+      line-height: 1;
+      color: #9ed8ff;
+      text-shadow: 0 0 18px rgba(241, 196, 83, .72);
+      letter-spacing: .08em;
+    }
+
+    .topbar button,
+    .action {
+      min-height: 38px;
+      border: 1px solid rgba(241, 196, 83, .55);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: linear-gradient(180deg, rgba(216, 58, 53, .96), rgba(126, 22, 34, .96));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .23);
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .07em;
+    }
+
+    .topbar button:hover,
+    .action:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 58px 0 80px;
+    }
+
+    .hero {
+      min-height: 52vh;
+      display: grid;
+      align-content: center;
+      text-align: center;
+      padding-bottom: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      font-size: .82rem;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(3rem, 10vw, 8rem);
+      line-height: .88;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      text-shadow: 0 16px 38px rgba(0, 0, 0, .48);
+    }
+
+    .hero h2 span {
+      color: var(--sky);
+    }
+
+    .hero p {
+      width: min(720px, 100%);
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 22px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(4, 18, 40, .72);
+      backdrop-filter: blur(10px);
+    }
+
+    .tab {
+      flex: 1 1 180px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .05);
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .tab.active {
+      color: var(--ink);
+      border-color: rgba(241, 196, 83, .62);
+      background: linear-gradient(180deg, rgba(31, 191, 117, .7), rgba(12, 91, 66, .9));
+    }
+
+    .phase { display: none; }
+    .phase.active { display: block; }
+
+    .section-title {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      margin: 0 0 18px;
+      text-transform: uppercase;
+    }
+
+    .section-title .num {
+      color: rgba(241, 196, 83, .5);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      letter-spacing: .09em;
+    }
+
+    .section-title .rule {
+      height: 1px;
+      background: var(--line);
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      text-align: right;
+      text-transform: uppercase;
+      font-size: .78rem;
+      letter-spacing: .11em;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .checkin {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(100px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .mood {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      grid-template-rows: auto auto;
+      place-items: center;
+      justify-items: start;
+      align-content: start;
+      min-height: 116px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, .14), transparent 44%),
+        rgba(255, 255, 255, .06);
+      cursor: default;
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .mood svg {
+      grid-row: 1 / 3;
+      width: 72px;
+      height: 72px;
+      filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .35));
+    }
+
+    .mood strong {
+      margin-top: 0;
+      color: var(--ink);
+      font-size: .9rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      text-align: left;
+    }
+
+    .mood span {
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      font-size: .74rem;
+      line-height: 1.28;
+      letter-spacing: 0;
+      text-align: left;
+      grid-column: 2;
+    }
+
+    .squad {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      background: var(--panel-strong);
+    }
+
+    .squad h4,
+    .pain-card h4,
+    .fixture h4 {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-size: 1rem;
+      color: var(--sky);
+    }
+
+    .selection-pitch {
+      min-height: 780px;
+      border: 1px solid rgba(51, 209, 122, .35);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, transparent 49.8%, rgba(255,255,255,.26) 50%, transparent 50.2%),
+        radial-gradient(circle at 50% 50%, transparent 0 70px, rgba(255,255,255,.2) 71px 72px, transparent 73px),
+        repeating-linear-gradient(90deg, rgba(44, 122, 67, .22) 0 56px, rgba(31, 89, 58, .28) 56px 112px);
+      position: relative;
+      overflow: hidden;
+      padding: 18px;
+    }
+
+    .selection-pitch::before,
+    .selection-pitch::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 10%;
+      height: 34%;
+      border: 1px solid rgba(255, 255, 255, .18);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .selection-pitch::before {
+      left: 0;
+      border-left: 0;
+      border-radius: 0 60px 60px 0;
+    }
+
+    .selection-pitch::after {
+      right: 0;
+      border-right: 0;
+      border-radius: 60px 0 0 60px;
+    }
+
+    .player-card {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: 122px;
+      transform: translate(-50%, -50%);
+      display: grid;
+      place-items: center;
+      gap: 6px;
+      padding: 7px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 8px;
+      background: rgba(9, 26, 54, .8);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, .32);
+      backdrop-filter: blur(6px);
+    }
+
+    .player-photo {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, .72);
+      box-shadow: 0 0 0 3px rgba(241, 196, 83, .24);
+      background: #0b2348;
+    }
+
+    .player-name {
+      max-width: 100%;
+      color: var(--ink);
+      font-size: .74rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player-mood {
+      min-height: 22px;
+      display: grid;
+      place-items: center;
+    }
+
+    .player-mood svg {
+      width: 22px;
+      height: 22px;
+      filter: drop-shadow(0 5px 8px rgba(0, 0, 0, .38));
+    }
+
+    .mood-choices {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      width: 100%;
+    }
+
+    .mood-choice {
+      width: 100%;
+      min-width: 0;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 5px;
+      background: rgba(255, 255, 255, .08);
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .mood-choice:hover,
+    .mood-choice.active {
+      border-color: var(--gold);
+      background: rgba(242, 201, 76, .18);
+    }
+
+    .mood-choice svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .small-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .small-actions button {
+      flex: 1;
+      min-height: 40px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .08);
+      color: var(--ink);
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .pain-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .sticky-board {
+      min-height: 520px;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 18px;
+      align-items: start;
+      background:
+        linear-gradient(90deg, transparent 49.8%, rgba(255,255,255,.1) 50%, transparent 50.2%),
+        repeating-linear-gradient(135deg, rgba(241, 196, 83, .07) 0 1px, transparent 1px 34px),
+        var(--panel);
+    }
+
+    .sticky-note {
+      min-height: 150px;
+      padding: 16px;
+      border-radius: 4px;
+      color: #132033;
+      font-family: system-ui, sans-serif;
+      line-height: 1.35;
+      letter-spacing: 0;
+      box-shadow: 0 18px 30px rgba(0, 0, 0, .28);
+      transform: rotate(var(--tilt));
+    }
+
+    .sticky-note strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #0d2747;
+      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .sticky-note textarea {
+      width: 100%;
+      min-height: 82px;
+      margin-top: 12px;
+      border: 1px solid rgba(13, 39, 71, .18);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, .42);
+      color: #132033;
+      padding: 8px;
+      resize: vertical;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .commitment-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+    }
+
+    .commitment-table th,
+    .commitment-table td {
+      padding: 16px 14px;
+      border-bottom: 1px solid rgba(141, 197, 255, .14);
+      vertical-align: top;
+      text-align: left;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .commitment-table th {
+      color: var(--muted);
+      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-size: .82rem;
+    }
+
+    .commitment-table strong {
+      color: var(--ink);
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .commitment-table .tag {
+      display: inline-grid;
+      place-items: center;
+      min-width: 66px;
+      padding: 5px 10px;
+      border: 1px solid rgba(241, 196, 83, .34);
+      border-radius: 999px;
+      color: var(--sky);
+      background: rgba(241, 196, 83, .12);
+      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .commitment-table select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 6px;
+      background: #0b2348;
+      color: var(--ink);
+      padding: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .commitment-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .commitment-card {
+      min-height: 330px;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .commitment-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(241, 196, 83, .12), transparent 36%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, .04) 0 1px, transparent 1px 28px);
+      pointer-events: none;
+    }
+
+    .commitment-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .commitment-card h4 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1.05rem;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .commitment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .commitment-badge {
+      display: inline-grid;
+      place-items: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border: 1px solid rgba(241, 196, 83, .34);
+      border-radius: 999px;
+      color: var(--sky);
+      background: rgba(241, 196, 83, .12);
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: .08em;
+      font-size: .78rem;
+    }
+
+    .success-criteria {
+      padding: 14px;
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .06);
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      line-height: 1.45;
+      letter-spacing: 0;
+    }
+
+    .success-criteria strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--gold);
+      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .commitment-card label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      font-size: .82rem;
+      letter-spacing: 0;
+    }
+
+    .commitment-card select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 6px;
+      background: #0b2348;
+      color: var(--ink);
+      padding: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .commitment-card textarea,
+    .review-card textarea {
+      width: 100%;
+      min-height: 86px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 6px;
+      background: rgba(1, 10, 24, .62);
+      color: var(--ink);
+      padding: 10px 12px;
+      resize: vertical;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .review-card {
+      min-height: 260px;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+    }
+
+    .review-card h4 {
+      margin: 0;
+      color: var(--sky);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: 1rem;
+    }
+
+    .pain-card {
+      min-height: 390px;
+      padding: 16px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 12px;
+    }
+
+    .status {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--status);
+      box-shadow: 0 0 22px color-mix(in srgb, var(--status), transparent 42%);
+    }
+
+    .pain-card textarea,
+    .pain-card input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 6px;
+      background: rgba(1, 10, 24, .62);
+      color: var(--ink);
+      padding: 11px 12px;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0;
+      resize: vertical;
+    }
+
+    .pain-card textarea {
+      min-height: 130px;
+    }
+
+    .pain-card label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      font-size: .82rem;
+      letter-spacing: 0;
+    }
+
+    .pain-card select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 6px;
+      background: #0b2348;
+      color: var(--ink);
+      padding: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .fixture {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .fixture .panel {
+      padding: 18px;
+    }
+
+    .formation {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .play {
+      min-height: 120px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .12);
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .play .icon { font-size: 2.4rem; }
+    .play strong {
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .export-box {
+      min-height: 260px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: var(--radius);
+      background: rgba(1, 10, 24, .68);
+      color: var(--ink);
+      padding: 14px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .86rem;
+      white-space: pre-wrap;
+      letter-spacing: 0;
+    }
+
+    .pdf-panel {
+      align-content: center;
+      gap: 16px;
+    }
+
+    .pdf-summary {
+      margin: 0;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        grid-template-columns: 1fr 1fr;
+      }
+      .brand {
+        grid-column: 1 / -1;
+      }
+      .checkin,
+      .fixture,
+      .pain-board,
+      .sticky-board,
+      .commitment-board,
+      .review-grid {
+        grid-template-columns: 1fr;
+      }
+      .commitment-table,
+      .commitment-table thead,
+      .commitment-table tbody,
+      .commitment-table tr,
+      .commitment-table th,
+      .commitment-table td {
+        display: block;
+      }
+      .commitment-table thead {
+        display: none;
+      }
+      .commitment-table td {
+        padding: 11px 14px;
+      }
+      .commitment-table tr {
+        border-bottom: 1px solid rgba(141, 197, 255, .18);
+      }
+      .mood-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .selection-pitch {
+        min-height: 900px;
+      }
+      .player-card {
+        width: 112px;
+      }
+      .hint {
+        display: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100% - 18px, 1180px);
+        padding-top: 34px;
+      }
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+      .scoreboard,
+      .topbar button {
+        width: 100%;
+      }
+      .mood-grid,
+      .formation {
+        grid-template-columns: 1fr;
+      }
+      .selection-pitch {
+        min-height: 1040px;
+      }
+      .player-card {
+        width: 104px;
+      }
+      .mood-choice svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="retro-mundialista">
+      <div class="ball">⚽</div>
+      <h1>retro-<span>mundialista</span></h1>
+    </div>
+    <div class="clock" id="clock">15:00</div>
+    <button type="button" id="startTimerBtn">Iniciar</button>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="title">
+      <h2 id="title">Camino a <span>la copa</span></h2>
+    </section>
+
+    <nav class="tabs" aria-label="Fases de la retro">
+      <button class="tab active" type="button" data-phase="checkin">01 Entrada en calor</button>
+      <button class="tab" type="button" data-phase="vestuario">02 Vestuario pendiente</button>
+      <button class="tab" type="button" data-phase="compromisos">03 Jugadas pactadas</button>
+      <button class="tab" type="button" data-phase="ultimo">04 Último partido</button>
+      <button class="tab" type="button" data-phase="dolores">05 VAR de dolores</button>
+      <button class="tab" type="button" data-phase="cierre">06 Próximo partido</button>
+    </nav>
+
+    <section class="phase active" id="checkin">
+      <div class="section-title">
+        <span class="num">01</span>
+        <h3>Entrada en calor</h3>
+        <div class="rule"></div>
+        <p class="hint">Elegir imagen, no explicar todavía</p>
+      </div>
+
+      <div class="checkin">
+        <div class="panel mood-grid" aria-label="Imágenes para expresar cómo llegamos">
+          <button class="mood" type="button" title="Camiseta: energía alta" data-mood="Camiseta">
+            <svg viewBox="0 0 100 100" role="img" aria-label="rayo sobre camiseta">
+              <path fill="#ffcf3f" d="M52 4 18 57h27L34 96l48-58H55z"/>
+              <path fill="#1f8f5f" d="M27 22h46l10 16-12 9v42H29V47l-12-9z" opacity=".92"/>
+            </svg>
+            <strong>Camiseta</strong>
+            <span>Vengo con energía y ganas de jugar este sprint.</span>
+          </button>
+          <button class="mood" type="button" title="Guantes: atajando urgencias" data-mood="Guantes">
+            <svg viewBox="0 0 100 100" role="img" aria-label="guantes de arquero">
+              <path fill="#f6f9ff" d="M22 18h22v47H19a9 9 0 0 1-9-9V30a12 12 0 0 1 12-12Zm34 0h22a12 12 0 0 1 12 12v26a9 9 0 0 1-9 9H56z"/>
+              <path fill="#1fbf75" d="M18 70h27v14H18zm37 0h27v14H55z"/>
+              <path fill="#d83a35" d="M29 25h8v31h-8zm34 0h8v31h-8z"/>
+            </svg>
+            <strong>Guantes</strong>
+            <span>Estuve conteniendo problemas o cubriendo urgencias.</span>
+          </button>
+          <button class="mood" type="button" title="Botella: necesito pausa" data-mood="Botella">
+            <svg viewBox="0 0 100 100" role="img" aria-label="botella de agua y banco">
+              <rect x="20" y="64" width="60" height="12" rx="3" fill="#f2c94c"/>
+              <rect x="26" y="74" width="8" height="16" fill="#1fbf75"/>
+              <rect x="66" y="74" width="8" height="16" fill="#1fbf75"/>
+              <path fill="#f1c453" d="M42 12h16v12l7 8v47a7 7 0 0 1-7 7H42a7 7 0 0 1-7-7V32l7-8z"/>
+              <rect x="39" y="45" width="22" height="18" rx="4" fill="#0b2348" opacity=".62"/>
+            </svg>
+            <strong>Botella</strong>
+            <span>Necesito recargar aire, foco o energía.</span>
+          </button>
+          <button class="mood" type="button" title="Trofeo: logro colectivo" data-mood="Trofeo">
+            <svg viewBox="0 0 100 100" role="img" aria-label="trofeo">
+              <path fill="#f2c94c" d="M35 14h30v28a15 15 0 0 1-30 0z"/>
+              <path fill="none" stroke="#f2c94c" stroke-width="8" d="M35 22H17c0 21 15 25 25 25M65 22h18c0 21-15 25-25 25"/>
+              <path fill="#1fbf75" d="M45 56h10v17h14v13H31V73h14z"/>
+            </svg>
+            <strong>Trofeo</strong>
+            <span>Siento que hubo un avance o logro para celebrar.</span>
+          </button>
+          <button class="mood" type="button" title="Conos: partido trabado" data-mood="Conos">
+            <svg viewBox="0 0 100 100" role="img" aria-label="pelota entre conos">
+              <circle cx="50" cy="50" r="19" fill="#f8fbff"/>
+              <path fill="#0b2348" d="m50 31 9 7-3 11H44l-3-11zM33 52l10-3 8 8-7 10-10-4zm34-3 10 3-1 11-10 4-7-10z"/>
+              <path fill="#ff9f43" d="M14 76h20l-7-32h-6zm52 0h20l-7-32h-6z"/>
+            </svg>
+            <strong>Conos</strong>
+            <span>El sprint se sintió trabado o con obstáculos.</span>
+          </button>
+        </div>
+
+        <aside class="panel squad">
+          <div class="selection-pitch" id="selectionPitch" aria-live="polite"></div>
+          <div class="small-actions">
+            <button type="button" id="clearMoods">Limpiar emociones</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="phase" id="vestuario">
+      <div class="section-title">
+        <span class="num">02</span>
+        <h3>Vestuario pendiente</h3>
+        <div class="rule"></div>
+        <p class="hint">Dolores del partido anterior</p>
+      </div>
+
+      <div class="panel sticky-board">
+        <article class="sticky-note" style="--tilt: -2deg; background: #fff6a8">
+          <strong>Dolor 01</strong>
+          Evitar buscar "soluciones" a problemas de los cuales no tenemos fundamentos (NPS)
+          <textarea data-key="prevPain1" placeholder="Qué hacemos con esto?"></textarea>
+        </article>
+        <article class="sticky-note" style="--tilt: 1.5deg; background: #ffe1d2">
+          <strong>Dolor 02</strong>
+          En los días que hay review, usar 10 min de la daily para alinear qué vamos a contar y qué falta para completar la ppt.
+          <textarea data-key="prevPain2" placeholder="Qué acuerdo necesitamos?"></textarea>
+        </article>
+        <article class="sticky-note" style="--tilt: -1deg; background: #d7ecf8">
+          <strong>Dolor 03</strong>
+          Implementar dinámica para las WR: cómo accionamos en estos espacios desde cada disciplina.
+          <textarea data-key="prevPain3" placeholder="Próxima jugada"></textarea>
+        </article>
+        <article class="sticky-note" style="--tilt: -2.5deg; background: #fff6a8">
+          <strong>Dolor 04</strong>
+          Tener siempre algo que aporte valor para mostrar en review.
+          <textarea data-key="prevPain4" placeholder="Cómo lo garantizamos?"></textarea>
+        </article>
+        <article class="sticky-note" style="--tilt: 1deg; background: #ffe1d2">
+          <strong>Dolor 05</strong>
+          Comenzar a procedimentar dinámica "Fast track".
+          <textarea data-key="prevPain5" placeholder="Responsable / siguiente paso"></textarea>
+        </article>
+      </div>
+    </section>
+
+    <section class="phase" id="compromisos">
+      <div class="section-title">
+        <span class="num">03</span>
+        <h3>Jugadas pactadas</h3>
+        <div class="rule"></div>
+        <p class="hint">Compromisos que prometimos jugar</p>
+      </div>
+
+      <div class="commitment-board">
+        <article class="panel commitment-card">
+          <h4>Mostrar la capacidad real del equipo</h4>
+          <div class="commitment-meta">
+            <span class="commitment-badge">Todos</span>
+            <span class="commitment-badge">FT + QA</span>
+          </div>
+          <div class="success-criteria">
+            <strong>Criterio de gol</strong>
+            Documentación lista al cierre del sprint.
+          </div>
+          <label>Estado de la jugada
+            <select data-key="commitment1">
+              <option>Sin avances</option>
+              <option>Seguimos trabajando</option>
+              <option>Partido ganado</option>
+            </select>
+          </label>
+          <label>Ajuste para seguir jugando
+            <textarea data-key="commitmentNote1" placeholder="Qué falta ajustar o sostener?"></textarea>
+          </label>
+        </article>
+
+        <article class="panel commitment-card">
+          <h4>Centralizar la documentación en el chat online</h4>
+          <div class="commitment-meta">
+            <span class="commitment-badge">Todos</span>
+            <span class="commitment-badge">DC-Daily</span>
+          </div>
+          <div class="success-criteria">
+            <strong>Criterio de gol</strong>
+            Usar el canal de comunicación DC-Daily como centralizador.
+          </div>
+          <label>Estado de la jugada
+            <select data-key="commitment2">
+              <option>Sin avances</option>
+              <option>Seguimos trabajando</option>
+              <option>Partido ganado</option>
+            </select>
+          </label>
+          <label>Ajuste para seguir jugando
+            <textarea data-key="commitmentNote2" placeholder="Qué falta ajustar o sostener?"></textarea>
+          </label>
+        </article>
+
+        <article class="panel commitment-card">
+          <h4>Estimar con DoR en el último refinamiento</h4>
+          <div class="commitment-meta">
+            <span class="commitment-badge">Todos</span>
+            <span class="commitment-badge">Refi</span>
+          </div>
+          <div class="success-criteria">
+            <strong>Criterio de gol</strong>
+            100% de casos que no sean FT/SP=1.
+          </div>
+          <label>Estado de la jugada
+            <select data-key="commitment3">
+              <option>Sin avances</option>
+              <option>Seguimos trabajando</option>
+              <option>Partido ganado</option>
+            </select>
+          </label>
+          <label>Ajuste para seguir jugando
+            <textarea data-key="commitmentNote3" placeholder="Qué falta ajustar o sostener?"></textarea>
+          </label>
+        </article>
+      </div>
+    </section>
+
+    <section class="phase" id="ultimo">
+      <div class="section-title">
+        <span class="num">04</span>
+        <h3>Último partido</h3>
+        <div class="rule"></div>
+        <p class="hint">Qué nos llevamos del sprint</p>
+      </div>
+
+      <div class="review-grid">
+        <article class="panel review-card">
+          <h4>Marcador final</h4>
+          <textarea data-key="lastScore" placeholder="Qué resultado nos dejó el último sprint?"></textarea>
+        </article>
+        <article class="panel review-card">
+          <h4>Jugadas que funcionaron</h4>
+          <textarea data-key="lastWins" placeholder="Qué vale la pena repetir o sostener?"></textarea>
+        </article>
+        <article class="panel review-card">
+          <h4>Para entrenar</h4>
+          <textarea data-key="lastTrain" placeholder="Qué nos llevamos para trabajar el próximo sprint?"></textarea>
+        </article>
+      </div>
+    </section>
+
+    <section class="phase" id="dolores">
+      <div class="section-title">
+        <span class="num">05</span>
+        <h3>VAR de dolores</h3>
+        <div class="rule"></div>
+        <p class="hint">Volver sobre lo pendiente</p>
+      </div>
+
+      <div class="pain-board">
+        <article class="panel pain-card" style="--status: var(--red)">
+          <h4>Offside</h4>
+          <div class="status"></div>
+          <label>Dolor pendiente
+            <textarea data-key="pain1" placeholder="Ej: dependencias bloqueantes, handoffs largos..."></textarea>
+          </label>
+          <label>Dueño de la jugada
+            <input data-key="owner1" placeholder="Nombre o dupla">
+          </label>
+          <label>Estado
+            <select data-key="state1">
+              <option>Se mantiene</option>
+              <option>En progreso</option>
+              <option>Resuelto</option>
+            </select>
+          </label>
+        </article>
+
+        <article class="panel pain-card" style="--status: var(--orange)">
+          <h4>Pelota parada</h4>
+          <div class="status"></div>
+          <label>Dolor pendiente
+            <textarea data-key="pain2" placeholder="Ej: reuniones, prioridades, ambiente, deuda..."></textarea>
+          </label>
+          <label>Dueño de la jugada
+            <input data-key="owner2" placeholder="Nombre o dupla">
+          </label>
+          <label>Estado
+            <select data-key="state2">
+              <option>Se reformula</option>
+              <option>Necesita decisión</option>
+              <option>Se agenda</option>
+            </select>
+          </label>
+        </article>
+
+        <article class="panel pain-card" style="--status: var(--grass)">
+          <h4>Gol a favor</h4>
+          <div class="status"></div>
+          <label>Qué mejoró
+            <textarea data-key="pain3" placeholder="Ej: algo que venía doliendo y ya empezó a moverse..."></textarea>
+          </label>
+          <label>Cómo lo cuidamos
+            <input data-key="owner3" placeholder="Práctica, acuerdo o ritual">
+          </label>
+          <label>Estado
+            <select data-key="state3">
+              <option>Se sostiene</option>
+              <option>Se refuerza</option>
+              <option>Se celebra</option>
+            </select>
+          </label>
+        </article>
+      </div>
+    </section>
+
+    <section class="phase" id="cierre">
+      <div class="section-title">
+        <span class="num">06</span>
+        <h3>Próximo partido</h3>
+        <div class="rule"></div>
+        <p class="hint">Acciones para el sprint</p>
+      </div>
+
+      <div class="fixture">
+        <div class="panel">
+          <h4>Jugada preparada</h4>
+          <div class="formation">
+            <label class="play">
+              <span class="icon">🎯</span>
+              <strong>Objetivo</strong>
+              <input data-key="goal" placeholder="Qué queremos cambiar">
+            </label>
+            <label class="play">
+              <span class="icon">🧤</span>
+              <strong>Defensa</strong>
+              <input data-key="guard" placeholder="Con qué nos quedamos">
+            </label>
+            <label class="play">
+              <span class="icon">🏆</span>
+              <strong>Victoria</strong>
+              <input data-key="win" placeholder="Cómo alcanzamos el éxito">
+            </label>
+          </div>
+        </div>
+
+        <div class="panel pdf-panel">
+          <h4>Próxima retro</h4>
+          <p class="pdf-summary">Descargá el resumen con lo más importante para retomar en la próxima retro.</p>
+          <button class="action" type="button" id="pdfBtn">Descargar PDF próxima retro</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+    const state = JSON.parse(localStorage.getItem("retroMundialista") || '{"moods":[],"playerMoods":{}}');
+    const clock = $("#clock");
+    const startTimerBtn = $("#startTimerBtn");
+    const moodSvgs = {};
+    const moodLabels = ["Camiseta", "Guantes", "Botella", "Trofeo", "Conos"];
+    const participants = [
+      { id: "nacho", name: "Nacho", photo: "participants/nacho.jpg", x: "8%", y: "50%" },
+      { id: "angie", name: "Angie", photo: "participants/angie.jpg", x: "25%", y: "13%" },
+      { id: "cami", name: "Cami", photo: "participants/cami.jpg", x: "25%", y: "37%" },
+      { id: "cande", name: "Cande", photo: "participants/cande.png", x: "25%", y: "63%" },
+      { id: "facu", name: "Facu", photo: "participants/facu.png", x: "25%", y: "87%" },
+      { id: "fran", name: "Fran", photo: "participants/fran.png", x: "52%", y: "24%" },
+      { id: "hugo", name: "Hugo", photo: "participants/hugo.jpg", x: "51%", y: "50%" },
+      { id: "karina", name: "Karina", photo: "participants/karina.jpg", x: "52%", y: "76%" },
+      { id: "lucas", name: "Lucas", photo: "participants/lucas.jpg", x: "78%", y: "22%" },
+      { id: "mau", name: "Mau", photo: "participants/mau.png", x: "84%", y: "50%" },
+      { id: "ro", name: "Ro", photo: "participants/ro.png", x: "78%", y: "78%" }
+    ];
+    const previousPains = [
+      { key: "prevPain1", text: "Evitar buscar soluciones a problemas de los cuales no tenemos fundamentos (NPS)" },
+      { key: "prevPain2", text: "En dias de review, usar 10 min de la daily para alinear que vamos a contar y que falta para completar la ppt." },
+      { key: "prevPain3", text: "Implementar dinamica para las WR: como accionamos en estos espacios desde cada disciplina." },
+      { key: "prevPain4", text: "Tener siempre algo que aporte valor para mostrar en review." },
+      { key: "prevPain5", text: "Comenzar a procedimentar dinamica Fast track." }
+    ];
+    const commitments = [
+      {
+        key: "commitment1",
+        noteKey: "commitmentNote1",
+        action: "Implementador para proceso FT y QA -> Evidenciar la falta de capacidad operativa",
+        success: "Documentacion lista al cierre del sprint"
+      },
+      {
+        key: "commitment2",
+        noteKey: "commitmentNote2",
+        action: "Implementador para proceso FT y QA -> Documentacion en chat online",
+        success: "Utilizacion de canal de comunicacion DC-Daily como centralizador"
+      },
+      {
+        key: "commitment3",
+        noteKey: "commitmentNote3",
+        action: "Estimar historia en ultimo refinamiento -> DoR en el ultimo refi de la iniciativa (pre-defined)",
+        success: "100% de casos que no sean FT/SP=1"
+      }
+    ];
+
+    const warmupDurationSeconds = 15 * 60;
+    let remainingSeconds = warmupDurationSeconds;
+    let timerId = null;
+
+    ["commitment1", "commitment2", "commitment3"].forEach((key) => {
+      if (state[key] === "En curso") state[key] = "Seguimos trabajando";
+      if (state[key] === "Logrado") state[key] = "Partido ganado";
+    });
+
+    function save() {
+      localStorage.setItem("retroMundialista", JSON.stringify(state));
+    }
+
+    function bindFields() {
+      $$("[data-key]").forEach((field) => {
+        field.value = state[field.dataset.key] || field.value || "";
+        const updateField = () => {
+          state[field.dataset.key] = field.value;
+          save();
+        };
+        field.addEventListener("input", updateField);
+        field.addEventListener("change", updateField);
+      });
+    }
+
+    function renderPitch() {
+      const pitch = $("#selectionPitch");
+      pitch.innerHTML = "";
+      participants.forEach((participant) => {
+        const selectedMood = state.playerMoods[participant.id] || "";
+        const card = document.createElement("article");
+        card.className = "player-card";
+        card.style.setProperty("--x", participant.x);
+        card.style.setProperty("--y", participant.y);
+        card.innerHTML = `
+          <img class="player-photo" src="${participant.photo}" alt="${participant.name}">
+          <strong class="player-name">${participant.name}</strong>
+          <div class="player-mood" aria-label="Estado elegido">${selectedMood ? moodSvgs[selectedMood] : ""}</div>
+          <div class="mood-choices" aria-label="Elegir estado de ${participant.name}">
+            ${moodLabels.map((label) => `
+              <button class="mood-choice ${selectedMood === label ? "active" : ""}" type="button" title="${participant.name}: ${label}" data-player="${participant.id}" data-mood="${label}">
+                ${moodSvgs[label]}
+              </button>
+            `).join("")}
+          </div>
+        `;
+        pitch.appendChild(card);
+      });
+    }
+
+    function buildNextRetroSummary() {
+      const playerLines = participants.map((participant) => `- ${participant.name}: ${state.playerMoods[participant.id] || "Sin elegir"}`).join("\n");
+      const previousPainLines = previousPains.map((pain, index) => `- Dolor ${index + 1}: ${pain.text} | Proxima jugada: ${state[pain.key] || ""}`).join("\n");
+      const commitmentLines = commitments.map((commitment) => `- ${commitment.action} | Criterio: ${commitment.success} | Estado: ${state[commitment.key] || "Sin avances"} | Ajuste: ${state[commitment.noteKey] || ""}`).join("\n");
+      return `RETRO MUNDIALISTA - PARA RETOMAR EN LA PROXIMA RETRO
+
+Estados del equipo:
+${playerLines}
+
+Vestuario pendiente:
+${previousPainLines}
+
+Jugadas pactadas:
+${commitmentLines}
+
+Ultimo partido:
+- Marcador final: ${state.lastScore || ""}
+- Jugadas que funcionaron: ${state.lastWins || ""}
+- Para entrenar: ${state.lastTrain || ""}
+
+Próximo sprint:
+- Objetivo: ${state.goal || ""}
+- Con que nos quedamos: ${state.guard || ""}
+- Como alcanzamos el exito: ${state.win || ""}`;
+    }
+
+    function escapePdfText(text) {
+      return String(text)
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\x20-\x7E\n]/g, "")
+        .replace(/\\/g, "\\\\")
+        .replace(/\(/g, "\\(")
+        .replace(/\)/g, "\\)");
+    }
+
+    function wrapPdfLines(text, maxLength = 92) {
+      return String(text).split("\n").flatMap((line) => {
+        const words = line.split(" ");
+        const lines = [];
+        let current = "";
+        words.forEach((word) => {
+          const candidate = current ? `${current} ${word}` : word;
+          if (candidate.length > maxLength) {
+            lines.push(current);
+            current = word;
+          } else {
+            current = candidate;
+          }
+        });
+        lines.push(current);
+        return lines;
+      });
+    }
+
+    function buildSimplePdf(text) {
+      const lines = wrapPdfLines(`Template próxima retro\n\n${text}`, 88).slice(0, 62);
+      const contentLines = ["BT", "/F1 11 Tf", "50 790 Td", "14 TL"];
+      lines.forEach((line, index) => {
+        if (index > 0) contentLines.push("T*");
+        contentLines.push(`(${escapePdfText(line)}) Tj`);
+      });
+      contentLines.push("ET");
+      const stream = contentLines.join("\n");
+      const objects = [
+        "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+        "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
+        "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n",
+        "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
+        `5 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj\n`
+      ];
+      let pdf = "%PDF-1.4\n";
+      const offsets = [0];
+      objects.forEach((object) => {
+        offsets.push(pdf.length);
+        pdf += object;
+      });
+      const xrefOffset = pdf.length;
+      pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+      offsets.slice(1).forEach((offset) => {
+        pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+      });
+      pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+      return new Blob([pdf], { type: "application/pdf" });
+    }
+
+    function downloadPdf() {
+      const blob = buildSimplePdf(buildNextRetroSummary());
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "template-proxima-retro.pdf";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderClock() {
+      const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
+      const seconds = String(remainingSeconds % 60).padStart(2, "0");
+      clock.textContent = `${minutes}:${seconds}`;
+    }
+
+    function stopTimer(label = "Iniciar") {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      startTimerBtn.textContent = label;
+    }
+
+    function startWarmupTimer() {
+      if (timerId) {
+        stopTimer("Reanudar");
+        return;
+      }
+
+      if (remainingSeconds <= 0) {
+        remainingSeconds = warmupDurationSeconds;
+      }
+
+      startTimerBtn.textContent = "Pausar";
+      renderClock();
+      timerId = setInterval(() => {
+        remainingSeconds -= 1;
+        renderClock();
+
+        if (remainingSeconds <= 0) {
+          remainingSeconds = 0;
+          renderClock();
+          stopTimer("Reiniciar");
+        }
+      }, 1000);
+    }
+
+    $$(".mood").forEach((button) => {
+      const svg = button.querySelector("svg").outerHTML;
+      moodSvgs[button.dataset.mood] = svg;
+    });
+
+    $("#selectionPitch").addEventListener("click", (event) => {
+      const button = event.target.closest(".mood-choice");
+      if (!button) return;
+      state.playerMoods[button.dataset.player] = button.dataset.mood;
+      renderPitch();
+      save();
+    });
+
+    $$(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        $$(".tab").forEach((item) => item.classList.remove("active"));
+        $$(".phase").forEach((item) => item.classList.remove("active"));
+        tab.classList.add("active");
+        $("#" + tab.dataset.phase).classList.add("active");
+      });
+    });
+
+    startTimerBtn.addEventListener("click", startWarmupTimer);
+
+    $("#clearMoods").addEventListener("click", () => {
+      state.playerMoods = {};
+      renderPitch();
+      save();
+    });
+
+    $("#pdfBtn").addEventListener("click", downloadPdf);
+
+    state.playerMoods = Object.fromEntries(Object.entries(state.playerMoods || {}).filter(([, mood]) => moodSvgs[mood]));
+
+    bindFields();
+    renderPitch();
+    renderClock();
+  </script>
+</body>
+</html>
