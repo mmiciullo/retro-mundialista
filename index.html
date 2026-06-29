@@ -813,6 +813,74 @@
       letter-spacing: .08em;
     }
 
+    .next-actions {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .next-actions-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .next-action-card {
+      padding: 14px;
+      border: 1px solid rgba(241, 196, 83, .28);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(241, 196, 83, .12), transparent 38%),
+        rgba(255, 255, 255, .06);
+      display: grid;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .next-action-card h5 {
+      margin: 0;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .95rem;
+    }
+
+    .next-action-card p {
+      margin: 0;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      line-height: 1.42;
+      letter-spacing: 0;
+    }
+
+    .card-row {
+      display: grid;
+      gap: 4px;
+    }
+
+    .card-row strong {
+      color: var(--ink);
+      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .78rem;
+    }
+
+    .delete-action {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 50%;
+      background: rgba(216, 58, 53, .22);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
     .export-box {
       min-height: 260px;
       width: 100%;
@@ -899,7 +967,8 @@
         width: 100%;
       }
       .mood-grid,
-      .formation {
+      .formation,
+      .next-actions-list {
         grid-template-columns: 1fr;
       }
       .selection-pitch {
@@ -1224,18 +1293,22 @@
             <label class="play">
               <span class="icon">🎯</span>
               <strong>Objetivo</strong>
-              <input data-key="goal" placeholder="Qué queremos cambiar">
+              <input id="nextGoal" data-key="goal" placeholder="Qué queremos cambiar">
             </label>
             <label class="play">
               <span class="icon">🧤</span>
               <strong>Defensa</strong>
-              <input data-key="guard" placeholder="Con qué nos quedamos">
+              <input id="nextGuard" data-key="guard" placeholder="Con qué nos quedamos">
             </label>
             <label class="play">
               <span class="icon">🏆</span>
               <strong>Victoria</strong>
-              <input data-key="win" placeholder="Cómo alcanzamos el éxito">
+              <input id="nextWin" data-key="win" placeholder="Cómo alcanzamos el éxito">
             </label>
+          </div>
+          <div class="next-actions">
+            <button class="action" type="button" id="addNextAction">Fijar jugada</button>
+            <div class="next-actions-list" id="nextActionsList" aria-live="polite"></div>
           </div>
         </div>
 
@@ -1251,7 +1324,7 @@
   <script>
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-    const state = JSON.parse(localStorage.getItem("retroMundialista") || '{"moods":[],"playerMoods":{}}');
+    const state = JSON.parse(localStorage.getItem("retroMundialista") || '{"moods":[],"playerMoods":{},"nextActions":[]}');
     const clock = $("#clock");
     const startTimerBtn = $("#startTimerBtn");
     const moodSvgs = {};
@@ -1305,6 +1378,7 @@
       if (state[key] === "En curso") state[key] = "Seguimos trabajando";
       if (state[key] === "Logrado") state[key] = "Partido ganado";
     });
+    state.nextActions = state.nextActions || [];
 
     function save() {
       localStorage.setItem("retroMundialista", JSON.stringify(state));
@@ -1347,10 +1421,57 @@
       });
     }
 
+    function renderNextActions() {
+      const list = $("#nextActionsList");
+      if (!list) return;
+      const actions = state.nextActions || [];
+      list.innerHTML = actions.length ? "" : `<p class="pdf-summary">Todavía no hay jugadas fijadas.</p>`;
+      actions.forEach((action, index) => {
+        const card = document.createElement("article");
+        card.className = "next-action-card";
+        card.innerHTML = `
+          <button class="delete-action" type="button" title="Quitar jugada" data-index="${index}">×</button>
+          <h5>Jugada ${index + 1}</h5>
+          <div class="card-row">
+            <strong>Objetivo</strong>
+            <p>${action.goal || "-"}</p>
+          </div>
+          <div class="card-row">
+            <strong>Con qué nos quedamos</strong>
+            <p>${action.guard || "-"}</p>
+          </div>
+          <div class="card-row">
+            <strong>Éxito</strong>
+            <p>${action.win || "-"}</p>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function addNextAction() {
+      const goal = $("#nextGoal").value.trim();
+      const guard = $("#nextGuard").value.trim();
+      const win = $("#nextWin").value.trim();
+      if (!goal && !guard && !win) return;
+
+      state.nextActions = state.nextActions || [];
+      state.nextActions.push({ goal, guard, win });
+      state.goal = "";
+      state.guard = "";
+      state.win = "";
+      $("#nextGoal").value = "";
+      $("#nextGuard").value = "";
+      $("#nextWin").value = "";
+      renderNextActions();
+      save();
+    }
+
     function buildNextRetroSummary() {
       const playerLines = participants.map((participant) => `- ${participant.name}: ${state.playerMoods[participant.id] || "Sin elegir"}`).join("\n");
       const previousPainLines = previousPains.map((pain, index) => `- Dolor ${index + 1}: ${pain.text} | Proxima jugada: ${state[pain.key] || ""}`).join("\n");
       const commitmentLines = commitments.map((commitment) => `- ${commitment.action} | Criterio: ${commitment.success} | Estado: ${state[commitment.key] || "Sin avances"} | Ajuste: ${state[commitment.noteKey] || ""}`).join("\n");
+      const nextActionLines = (state.nextActions || []).map((action, index) => `- Jugada ${index + 1}: Objetivo: ${action.goal || ""} | Con que nos quedamos: ${action.guard || ""} | Exito: ${action.win || ""}`).join("\n") || "- Sin jugadas fijadas";
       return `RETRO MUNDIALISTA - PARA RETOMAR EN LA PROXIMA RETRO
 
 Estados del equipo:
@@ -1368,9 +1489,7 @@ Ultimo partido:
 - Para entrenar: ${state.lastTrain || ""}
 
 Próximo sprint:
-- Objetivo: ${state.goal || ""}
-- Con que nos quedamos: ${state.guard || ""}
-- Como alcanzamos el exito: ${state.win || ""}`;
+${nextActionLines}`;
     }
 
     function escapePdfText(text) {
@@ -1510,12 +1629,23 @@ Próximo sprint:
       save();
     });
 
+    $("#addNextAction").addEventListener("click", addNextAction);
+
+    $("#nextActionsList").addEventListener("click", (event) => {
+      const button = event.target.closest(".delete-action");
+      if (!button) return;
+      state.nextActions.splice(Number(button.dataset.index), 1);
+      renderNextActions();
+      save();
+    });
+
     $("#pdfBtn").addEventListener("click", downloadPdf);
 
     state.playerMoods = Object.fromEntries(Object.entries(state.playerMoods || {}).filter(([, mood]) => moodSvgs[mood]));
 
     bindFields();
     renderPitch();
+    renderNextActions();
     renderClock();
   </script>
 </body>
