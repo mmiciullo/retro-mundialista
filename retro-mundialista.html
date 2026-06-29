@@ -19,7 +19,7 @@
       --orange: #f08a24;
       --shadow: 0 20px 60px rgba(0, 0, 0, .38);
       --radius: 8px;
-      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      font-family: "Segoe UI", Roboto, Arial, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -31,7 +31,7 @@
       background:
         linear-gradient(180deg, rgba(8, 18, 28, .34), rgba(7, 24, 22, .9) 62%, #071611),
         url("mundial-stadium-bg.png") center top / cover fixed;
-      letter-spacing: .02em;
+      letter-spacing: 0;
     }
 
     body::before {
@@ -86,7 +86,8 @@
     .brand h1 {
       margin: 0;
       font-size: clamp(1.05rem, 2vw, 1.65rem);
-      letter-spacing: .09em;
+      letter-spacing: .02em;
+      font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -128,7 +129,7 @@
       cursor: pointer;
       text-transform: uppercase;
       font-weight: 800;
-      letter-spacing: .07em;
+      letter-spacing: .03em;
     }
 
     .topbar button:hover,
@@ -204,8 +205,8 @@
       color: var(--muted);
       cursor: pointer;
       text-transform: uppercase;
-      font-weight: 900;
-      letter-spacing: .08em;
+      font-weight: 800;
+      letter-spacing: .03em;
     }
 
     .tab.active {
@@ -229,13 +230,13 @@
     .section-title .num {
       color: rgba(241, 196, 83, .5);
       font-size: 2rem;
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .section-title h3 {
       margin: 0;
       font-size: clamp(1.3rem, 3vw, 2rem);
-      letter-spacing: .09em;
+      letter-spacing: .03em;
     }
 
     .section-title .rule {
@@ -249,7 +250,7 @@
       text-align: right;
       text-transform: uppercase;
       font-size: .78rem;
-      letter-spacing: .11em;
+      letter-spacing: .04em;
     }
 
     .panel {
@@ -304,7 +305,7 @@
       color: var(--ink);
       font-size: .9rem;
       text-transform: uppercase;
-      letter-spacing: .08em;
+      letter-spacing: .03em;
       text-align: left;
     }
 
@@ -332,7 +333,7 @@
     .fixture h4 {
       margin: 0;
       text-transform: uppercase;
-      letter-spacing: .11em;
+      letter-spacing: .04em;
       font-size: 1rem;
       color: var(--sky);
     }
@@ -509,9 +510,9 @@
       display: block;
       margin-bottom: 8px;
       color: #0d2747;
-      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      font-family: "Segoe UI", Arial, system-ui, sans-serif;
       text-transform: uppercase;
-      letter-spacing: .06em;
+      letter-spacing: .03em;
     }
 
     .sticky-note textarea {
@@ -547,9 +548,9 @@
 
     .commitment-table th {
       color: var(--muted);
-      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      font-family: "Segoe UI", Arial, system-ui, sans-serif;
       text-transform: uppercase;
-      letter-spacing: .11em;
+      letter-spacing: .04em;
       font-size: .82rem;
     }
 
@@ -568,9 +569,9 @@
       border-radius: 999px;
       color: var(--sky);
       background: rgba(241, 196, 83, .12);
-      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      font-family: "Segoe UI", Arial, system-ui, sans-serif;
       text-transform: uppercase;
-      letter-spacing: .08em;
+      letter-spacing: .03em;
     }
 
     .commitment-table select {
@@ -619,10 +620,11 @@
     .commitment-card h4 {
       margin: 0;
       color: var(--ink);
-      font-size: 1.05rem;
-      line-height: 1.25;
-      text-transform: uppercase;
-      letter-spacing: .08em;
+      font-size: 1rem;
+      line-height: 1.35;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 800;
     }
 
     .commitment-meta {
@@ -643,7 +645,7 @@
       background: rgba(241, 196, 83, .12);
       text-transform: uppercase;
       font-weight: 900;
-      letter-spacing: .08em;
+      letter-spacing: .03em;
       font-size: .78rem;
     }
 
@@ -662,9 +664,9 @@
       display: block;
       margin-bottom: 6px;
       color: var(--gold);
-      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+      font-family: "Segoe UI", Roboto, Arial, system-ui, sans-serif;
       text-transform: uppercase;
-      letter-spacing: .1em;
+      letter-spacing: .015em;
     }
 
     .commitment-card label {
@@ -719,9 +721,10 @@
     .review-card h4 {
       margin: 0;
       color: var(--sky);
-      text-transform: uppercase;
-      letter-spacing: .1em;
+      text-transform: none;
+      letter-spacing: 0;
       font-size: 1rem;
+      line-height: 1.35;
     }
 
     .pain-card {
@@ -809,8 +812,8 @@
 
     .play .icon { font-size: 2.4rem; }
     .play strong {
-      text-transform: uppercase;
-      letter-spacing: .08em;
+      text-transform: none;
+      letter-spacing: 0;
     }
 
     .next-actions {
@@ -842,7 +845,7 @@
       margin: 0;
       color: var(--gold);
       text-transform: uppercase;
-      letter-spacing: .08em;
+      letter-spacing: .03em;
       font-size: .95rem;
     }
 
