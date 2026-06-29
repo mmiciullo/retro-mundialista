@@ -790,7 +790,7 @@
 
     .formation {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: minmax(260px, 1fr);
       gap: 12px;
       margin-top: 14px;
     }
@@ -852,19 +852,6 @@
       font-family: system-ui, sans-serif;
       line-height: 1.42;
       letter-spacing: 0;
-    }
-
-    .card-row {
-      display: grid;
-      gap: 4px;
-    }
-
-    .card-row strong {
-      color: var(--ink);
-      font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-size: .78rem;
     }
 
     .delete-action {
@@ -1288,26 +1275,16 @@
 
       <div class="fixture">
         <div class="panel">
-          <h4>Jugada preparada</h4>
+          <h4>Objetivos del próximo sprint</h4>
           <div class="formation">
             <label class="play">
               <span class="icon">🎯</span>
-              <strong>Objetivo</strong>
-              <input id="nextGoal" data-key="goal" placeholder="Qué queremos cambiar">
-            </label>
-            <label class="play">
-              <span class="icon">🧤</span>
-              <strong>Defensa</strong>
-              <input id="nextGuard" data-key="guard" placeholder="Con qué nos quedamos">
-            </label>
-            <label class="play">
-              <span class="icon">🏆</span>
-              <strong>Victoria</strong>
-              <input id="nextWin" data-key="win" placeholder="Cómo alcanzamos el éxito">
+              <strong>Nuevo objetivo</strong>
+              <input id="nextGoal" data-key="goal" placeholder="Qué queremos lograr o cambiar">
             </label>
           </div>
           <div class="next-actions">
-            <button class="action" type="button" id="addNextAction">Fijar jugada</button>
+            <button class="action" type="button" id="addNextAction">Agregar objetivo</button>
             <div class="next-actions-list" id="nextActionsList" aria-live="polite"></div>
           </div>
         </div>
@@ -1378,7 +1355,9 @@
       if (state[key] === "En curso") state[key] = "Seguimos trabajando";
       if (state[key] === "Logrado") state[key] = "Partido ganado";
     });
-    state.nextActions = state.nextActions || [];
+    state.nextActions = (state.nextActions || []).map((action) => (
+      typeof action === "string" ? action : action.goal || ""
+    )).filter(Boolean);
 
     function save() {
       localStorage.setItem("retroMundialista", JSON.stringify(state));
@@ -1427,23 +1406,13 @@
       const actions = state.nextActions || [];
       list.innerHTML = actions.length ? "" : `<p class="pdf-summary">Todavía no hay jugadas fijadas.</p>`;
       actions.forEach((action, index) => {
+        const objective = typeof action === "string" ? action : action.goal;
         const card = document.createElement("article");
         card.className = "next-action-card";
         card.innerHTML = `
-          <button class="delete-action" type="button" title="Quitar jugada" data-index="${index}">×</button>
-          <h5>Jugada ${index + 1}</h5>
-          <div class="card-row">
-            <strong>Objetivo</strong>
-            <p>${action.goal || "-"}</p>
-          </div>
-          <div class="card-row">
-            <strong>Con qué nos quedamos</strong>
-            <p>${action.guard || "-"}</p>
-          </div>
-          <div class="card-row">
-            <strong>Éxito</strong>
-            <p>${action.win || "-"}</p>
-          </div>
+          <button class="delete-action" type="button" title="Eliminar objetivo" data-index="${index}">×</button>
+          <h5>Objetivo ${index + 1}</h5>
+          <p>${objective || "-"}</p>
         `;
         list.appendChild(card);
       });
@@ -1451,18 +1420,12 @@
 
     function addNextAction() {
       const goal = $("#nextGoal").value.trim();
-      const guard = $("#nextGuard").value.trim();
-      const win = $("#nextWin").value.trim();
-      if (!goal && !guard && !win) return;
+      if (!goal) return;
 
       state.nextActions = state.nextActions || [];
-      state.nextActions.push({ goal, guard, win });
+      state.nextActions.push(goal);
       state.goal = "";
-      state.guard = "";
-      state.win = "";
       $("#nextGoal").value = "";
-      $("#nextGuard").value = "";
-      $("#nextWin").value = "";
       renderNextActions();
       save();
     }
@@ -1471,7 +1434,7 @@
       const playerLines = participants.map((participant) => `- ${participant.name}: ${state.playerMoods[participant.id] || "Sin elegir"}`).join("\n");
       const previousPainLines = previousPains.map((pain, index) => `- Dolor ${index + 1}: ${pain.text} | Proxima jugada: ${state[pain.key] || ""}`).join("\n");
       const commitmentLines = commitments.map((commitment) => `- ${commitment.action} | Criterio: ${commitment.success} | Estado: ${state[commitment.key] || "Sin avances"} | Ajuste: ${state[commitment.noteKey] || ""}`).join("\n");
-      const nextActionLines = (state.nextActions || []).map((action, index) => `- Jugada ${index + 1}: Objetivo: ${action.goal || ""} | Con que nos quedamos: ${action.guard || ""} | Exito: ${action.win || ""}`).join("\n") || "- Sin jugadas fijadas";
+      const nextActionLines = (state.nextActions || []).map((action, index) => `- Objetivo ${index + 1}: ${typeof action === "string" ? action : action.goal || ""}`).join("\n") || "- Sin objetivos cargados";
       return `RETRO MUNDIALISTA - PARA RETOMAR EN LA PROXIMA RETRO
 
 Estados del equipo:
@@ -1488,7 +1451,7 @@ Ultimo partido:
 - Jugadas que funcionaron: ${state.lastWins || ""}
 - Para entrenar: ${state.lastTrain || ""}
 
-Próximo sprint:
+Objetivos del próximo sprint:
 ${nextActionLines}`;
     }
 
