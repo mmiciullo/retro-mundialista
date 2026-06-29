@@ -1651,43 +1651,12 @@ ${nextActionLines}`;
       return new Blob([pdf], { type: "application/pdf" });
     }
 
-    function buildSimplePdf(text) {
-      const lines = wrapPdfLines(`Template próxima retro\n\n${text}`, 88).slice(0, 62);
-      const contentLines = ["BT", "/F1 11 Tf", "50 790 Td", "14 TL"];
-      lines.forEach((line, index) => {
-        if (index > 0) contentLines.push("T*");
-        contentLines.push(`(${escapePdfText(line)}) Tj`);
-      });
-      contentLines.push("ET");
-      const stream = contentLines.join("\n");
-      const objects = [
-        "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
-        "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
-        "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n",
-        "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
-        `5 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj\n`
-      ];
-      let pdf = "%PDF-1.4\n";
-      const offsets = [0];
-      objects.forEach((object) => {
-        offsets.push(pdf.length);
-        pdf += object;
-      });
-      const xrefOffset = pdf.length;
-      pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-      offsets.slice(1).forEach((offset) => {
-        pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
-      });
-      pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-      return new Blob([pdf], { type: "application/pdf" });
-    }
-
     function downloadPdf() {
       const blob = buildStyledPdf();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "template-proxima-retro.pdf";
+      link.download = "retro-mundialista-proxima-retro.pdf";
       link.click();
       URL.revokeObjectURL(url);
     }
