@@ -1483,6 +1483,174 @@ ${nextActionLines}`;
       });
     }
 
+    function pdfColor(hex) {
+      const value = hex.replace("#", "");
+      return [0, 2, 4]
+        .map((start) => (parseInt(value.slice(start, start + 2), 16) / 255).toFixed(3))
+        .join(" ");
+    }
+
+    function pdfText(text, x, y, size = 10, font = "F1", color = "#f8fbff") {
+      return [
+        "BT",
+        `/${font} ${size} Tf`,
+        `${pdfColor(color)} rg`,
+        `${x} ${y} Td`,
+        `(${escapePdfText(text)}) Tj`,
+        "ET"
+      ].join("\n");
+    }
+
+    function pdfRect(x, y, width, height, color, stroke = "") {
+      const fill = `${pdfColor(color)} rg ${x} ${y} ${width} ${height} re f`;
+      if (!stroke) return fill;
+      return `q ${fill} ${pdfColor(stroke)} RG 1 w ${x} ${y} ${width} ${height} re S Q`;
+    }
+
+    function buildStyledPdf() {
+      const pageWidth = 595;
+      const pageHeight = 842;
+      const margin = 42;
+      const cardWidth = pageWidth - margin * 2;
+      const colors = {
+        bg: "#071611",
+        panel: "#102923",
+        gold: "#f1c453",
+        red: "#d83a35",
+        green: "#1fbf75",
+        ink: "#f8fbff",
+        muted: "#c8bfa8",
+        line: "#6f643b"
+      };
+      const pages = [];
+      let content = [];
+      let y = 760;
+
+      function startPage() {
+        content = [
+          pdfRect(0, 0, pageWidth, pageHeight, colors.bg),
+          pdfRect(0, 806, pageWidth, 36, "#0b2420"),
+          pdfRect(0, 802, pageWidth, 4, colors.gold),
+          "q 0.220 0.300 0.270 RG 0.6 w",
+          ...Array.from({ length: 18 }, (_, index) => `${index * 42 - 120} 0 m ${index * 42 + 420} 842 l S`),
+          "Q",
+          pdfText("retro-mundialista", margin, 817, 12, "F2", colors.ink),
+          pdfText("Template para la proxima retro", 345, 817, 10, "F1", colors.gold)
+        ];
+        y = 760;
+      }
+
+      function finishPage() {
+        content.push(pdfText(`Pagina ${pages.length + 1}`, pageWidth - margin - 52, 24, 8, "F1", colors.muted));
+        pages.push(content.join("\n"));
+      }
+
+      function ensureSpace(height) {
+        if (y - height < 54) {
+          finishPage();
+          startPage();
+        }
+      }
+
+      function sectionTitle(number, title) {
+        ensureSpace(44);
+        content.push(pdfText(String(number).padStart(2, "0"), margin, y, 20, "F2", colors.gold));
+        content.push(pdfText(title, margin + 44, y + 4, 15, "F2", colors.ink));
+        content.push(`${pdfColor(colors.line)} RG 1 w ${margin + 220} ${y + 8} m ${pageWidth - margin} ${y + 8} l S`);
+        y -= 34;
+      }
+
+      function wrapped(text, maxLength = 78) {
+        return wrapPdfLines(text || "-", maxLength).filter((line) => line.trim());
+      }
+
+      function card(title, lines, accent = colors.gold) {
+        const bodyLines = lines.flatMap((line) => wrapped(line, 84));
+        const height = Math.max(84, 48 + bodyLines.length * 13);
+        ensureSpace(height + 12);
+        content.push(pdfRect(margin, y - height + 16, cardWidth, height, colors.panel, colors.line));
+        content.push(pdfRect(margin, y + 7, cardWidth, 5, accent));
+        content.push(pdfText(title, margin + 16, y - 10, 12, "F2", colors.ink));
+        let lineY = y - 31;
+        bodyLines.forEach((line) => {
+          content.push(pdfText(line, margin + 16, lineY, 9.5, "F1", colors.muted));
+          lineY -= 13;
+        });
+        y -= height + 14;
+      }
+
+      startPage();
+      content.push(pdfText("Camino a la copa", margin, 768, 26, "F2", colors.ink));
+      content.push(pdfText("Resumen visual para retomar compromisos, dolores y objetivos del proximo sprint.", margin, 744, 10, "F1", colors.muted));
+      y = 704;
+
+      sectionTitle(1, "Estados del equipo");
+      card("Como llegamos a la cancha", participants.map((participant) => `${participant.name}: ${state.playerMoods[participant.id] || "Sin elegir"}`), colors.green);
+
+      sectionTitle(2, "Jugadas pactadas");
+      commitments.forEach((commitment) => {
+        card(commitment.action, [
+          `Criterio de exito: ${commitment.success}`,
+          `Estado: ${state[commitment.key] || "Sin avances"}`,
+          `Ajuste: ${state[commitment.noteKey] || "-"}`
+        ], colors.gold);
+      });
+
+      sectionTitle(3, "Vestuario pendiente");
+      previousPains.forEach((pain, index) => {
+        card(`Dolor ${index + 1}`, [
+          pain.text,
+          `Proxima jugada: ${state[pain.key] || "-"}`
+        ], colors.red);
+      });
+
+      sectionTitle(4, "Ultimo partido");
+      card("Lo que nos llevamos", [
+        `Marcador final: ${state.lastScore || "-"}`,
+        `Jugadas que funcionaron: ${state.lastWins || "-"}`,
+        `Para entrenar: ${state.lastTrain || "-"}`
+      ], colors.green);
+
+      sectionTitle(5, "Proximo partido");
+      const nextActions = state.nextActions || [];
+      if (nextActions.length) {
+        nextActions.forEach((action, index) => {
+          card(`Objetivo ${index + 1}`, [typeof action === "string" ? action : action.goal || "-"], colors.gold);
+        });
+      } else {
+        card("Objetivos", ["Sin objetivos cargados"], colors.gold);
+      }
+
+      finishPage();
+      const fontRegular = 3 + pages.length * 2;
+      const fontBold = fontRegular + 1;
+      const objects = [
+        "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+        `2 0 obj\n<< /Type /Pages /Kids [${pages.map((_, index) => `${3 + index * 2} 0 R`).join(" ")}] /Count ${pages.length} >>\nendobj\n`
+      ];
+      pages.forEach((stream, index) => {
+        const pageObject = 3 + index * 2;
+        const contentObject = pageObject + 1;
+        objects.push(`${pageObject} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 ${fontRegular} 0 R /F2 ${fontBold} 0 R >> >> /Contents ${contentObject} 0 R >>\nendobj\n`);
+        objects.push(`${contentObject} 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj\n`);
+      });
+      objects.push(`${fontRegular} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n`);
+      objects.push(`${fontBold} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n`);
+      let pdf = "%PDF-1.4\n";
+      const offsets = [0];
+      objects.forEach((object) => {
+        offsets.push(pdf.length);
+        pdf += object;
+      });
+      const xrefOffset = pdf.length;
+      pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+      offsets.slice(1).forEach((offset) => {
+        pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+      });
+      pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+      return new Blob([pdf], { type: "application/pdf" });
+    }
+
     function buildSimplePdf(text) {
       const lines = wrapPdfLines(`Template próxima retro\n\n${text}`, 88).slice(0, 62);
       const contentLines = ["BT", "/F1 11 Tf", "50 790 Td", "14 TL"];
@@ -1515,7 +1683,7 @@ ${nextActionLines}`;
     }
 
     function downloadPdf() {
-      const blob = buildSimplePdf(buildNextRetroSummary());
+      const blob = buildStyledPdf();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
